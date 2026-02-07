@@ -34,7 +34,12 @@ export default function createApp() {
 
   const app = createRouter()
     .use(corsConf)
-    .use(rateLimiterConf)
+    .use(async (c, next) => {
+      if (c.req.method === 'OPTIONS') {
+        return next();
+      }
+      return rateLimiterConf(c, next);
+    })
     .use('/api/v1/*', logger())
     .get('/', (c) => c.html(htmlAsString))
     .get('/ping', (c) => c.text('pong'))
